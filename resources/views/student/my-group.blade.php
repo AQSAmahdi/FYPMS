@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" style="background:linear-gradient(90deg,#0C447C 260px,#f0f4f8 260px)">
+<head>
+<style>html,body{background:#f0f4f8}</style>
+
+<meta charset="UTF-8">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard - FYPMS</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;min-height:100vh}
+@keyframes borderFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.main{margin-left:260px;padding:0px 32px 28px;min-height:100vh}
+.topbar{margin-top:-30px}
+.topbar{background:#fff;border-radius:12px;padding:18px 26px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 12px rgba(12,68,124,.07);border:1px solid #e8f0f9;animation:fadeInUp .45s cubic-bezier(.22,.61,.36,1) both}
+.topbar h2{color:#0C447C;font-size:18px;font-weight:700}
+.topbar p{color:#8096b0;font-size:12px;margin-top:3px}
+.badge{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-student{background:#e8f0f9;color:#0C447C}
+.badge-open{background:#dcfce7;color:#166534}
+.badge-locked{background:#fef3c7;color:#92400e}
+.badge-submitted{background:#ede9fe;color:#6d28d9}
+.badge-assigned{background:#dcfce7;color:#166534}
+.alert{padding:12px 18px;border-radius:9px;margin-bottom:18px;font-size:13px;font-weight:500}
+.alert-success{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.alert-error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.section-card{background:#fff;border-radius:16px;padding:0;margin-bottom:20px;box-shadow:0 1px 12px rgba(12,68,124,.07);border:1px solid #e8f0f9;animation:fadeInUp .5s cubic-bezier(.22,.61,.36,1) both;transition:box-shadow .25s ease,transform .25s ease;overflow:hidden}
+.section-card:hover{box-shadow:0 6px 22px rgba(12,68,124,.12);transform:translateY(-2px)}
+.section-card .card-body{padding:24px}
+.card-header{background:linear-gradient(135deg,#378ADD,#0C447C);padding:16px 24px;display:flex;align-items:center;gap:10px}
+.card-title{color:#fff;font-size:14px;font-weight:700}
+.icon-badge{width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.icon-badge svg{width:16px;height:16px;stroke:#fff;fill:none}
+.section-card h3{color:#0C447C;font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-card h3 svg{width:16px;height:16px;stroke:#0C447C;fill:none}
+.animated-border{padding:1.5px;border-radius:12px;background:linear-gradient(270deg,#0C447C,#1a6bbf,#38bdf8,#0C447C);background-size:300% 300%;animation:borderFlow 6s ease infinite;margin-bottom:18px}
+.animated-border-inner{background:#fff;border-radius:10px;padding:20px}
+.group-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.info-box{background:#f4f8fd;border-radius:9px;padding:14px 16px;text-align:center}
+.info-box .label{font-size:11px;color:#8096b0;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.info-box .value{font-size:16px;font-weight:700;color:#0C447C}
+.members-list{display:flex;flex-direction:column;gap:8px}
+.member-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f4f8fd;border-radius:8px}
+.member-avatar{width:34px;height:34px;background:#0C447C;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0}
+.member-name{font-size:13px;font-weight:600;color:#1a2b3c}
+.member-roll{font-size:11.5px;color:#8096b0}
+.member-badge{margin-left:auto;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.creator-badge{background:#e8f0f9;color:#0C447C}
+.member-badge-plain{background:#f0f4f8;color:#5a7a9a}
+.btn-primary{padding:10px 20px;background:#0C447C;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Segoe UI',sans-serif;transition:background .2s;text-decoration:none;display:inline-block}
+.btn-primary:hover{background:#185FA5}
+.btn-danger{padding:8px 16px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Segoe UI',sans-serif}
+.btn-success-sm{padding:6px 14px;background:#dcfce7;color:#166534;border:1px solid #bbf7d0;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Segoe UI',sans-serif}
+.btn-reject-sm{padding:6px 14px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Segoe UI',sans-serif}
+.open-groups-grid{display:flex;flex-direction:column;gap:12px}
+.group-card-wrap{padding:2px;border-radius:11px;background:linear-gradient(270deg,#0C447C,#1a6bbf,#38bdf8,#0C447C);background-size:300% 300%;animation:borderFlow 2.5s ease infinite}
+.group-card{background:#fff;border-radius:9px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.group-card-info .code{font-size:13px;font-weight:700;color:#0C447C}
+.group-card-info .creator{font-size:12px;color:#8096b0;margin-top:3px}
+.group-card-info .slots{font-size:12px;color:#5a7a9a;margin-top:3px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#0C447C;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.input-wrap{padding:2px;border-radius:9px;background:linear-gradient(270deg,#0C447C,#1a6bbf,#38bdf8,#0C447C);background-size:300% 300%;animation:borderFlow 2.5s ease infinite}
+.input-wrap input,.input-wrap textarea{width:100%;padding:10px 14px;border:none;border-radius:7px;font-size:13px;color:#1a2b3c;background:#f7fafd;outline:none;font-family:'Segoe UI',sans-serif}
+.input-wrap textarea{height:90px;resize:vertical}
+.request-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f4f8fd;border-radius:8px;margin-bottom:8px;flex-wrap:wrap}
+.empty-state{text-align:center;padding:32px;color:#9aabbf;font-size:13px}
+.empty-state svg{width:36px;height:36px;stroke:#c4d4e8;fill:none;margin:0 auto 10px;display:block}
+.no-group-actions{display:flex;gap:12px;flex-wrap:wrap}
+@media(max-width:768px){
+  .main{margin-left:0;padding:16px;padding-top:62px}
+  .group-info-grid{grid-template-columns:repeat(2,1fr)}
+  .topbar{flex-direction:column;align-items:flex-start;gap:8px}
+  .group-card{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:480px){
+  .group-info-grid{grid-template-columns:1fr}
+  .no-group-actions{flex-direction:column}
+}
+</style>
+<link rel="stylesheet" href="/css/transitions.css?v=3">
+<meta name="view-transition" content="same-origin">
+</head>
+<body>
+
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+  <span></span><span></span><span></span>
+</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+@include('student.partials.sidebar')
+  <div class="sidebar-footer">
+    <a href="/logout" onclick="event.preventDefault();document.getElementById('logout-form').submit();" class="logout-btn" style="cursor:pointer;display:flex;align-items:center;gap:10px;text-decoration:none">
+      <svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </a>
+    <form id="logout-form" action="/logout" method="POST" style="display:none">{{ csrf_field() }}</form>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div><h2>My Group</h2><p>Manage your FYP group and members</p></div>
+    <span class="badge badge-student">Student</span>
+  </div>
+  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+  @if(session('error'))<div class="alert alert-error">{{ session('error') }}</div>@endif
+
+  @if($myGroup)
+  <div class="section-card">
+    <div class="card-header">
+      <span class="icon-badge">
+        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.1 3 3 6 3s6-1.9 6-3v-5"/><path d="M22 10v6"/></svg>
+      </span>
+      <span class="card-title">My Group</span>
+    </div>
+    <div class="card-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:#0C447C">{{ $myGroup->group_code }}</div>
+        <div style="font-size:12px;color:#8096b0;margin-top:3px">Your FYP Group</div>
+      </div>
+      @if($myGroup->status=="open")<span class="badge badge-open">Open</span>
+      @elseif($myGroup->status=="locked")<span class="badge badge-locked">Locked</span>
+      @elseif($myGroup->status=="supervisor_assigned")<span class="badge badge-assigned">Supervisor Assigned</span>
+      @endif
+    </div>
+    <div class="group-info-grid">
+      <div class="info-box"><div class="label">Members</div><div class="value">{{ $myGroup->members->count() }} / {{ $myGroup->max_members }}</div></div>
+      <div class="info-box"><div class="label">Department</div><div class="value" style="font-size:13px">{{ $myGroup->department->name ?? "-" }}</div></div>
+      <div class="info-box"><div class="label">Supervisor</div><div class="value" style="font-size:13px">{{ $myGroup->supervisor->name ?? "Not Assigned" }}</div></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:600;color:#5a7a9a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Group Members</div>
+      <div class="members-list">
+        @foreach($myGroup->members as $m)
+        <div class="member-row">
+          <div class="member-avatar">{{ strtoupper(substr($m->user->name,0,1)) }}</div>
+          <div><div class="member-name">{{ $m->user->name }}</div><div class="member-roll">{{ $m->user->studentProfile->student_id ?? $m->user->email }}</div></div>
+          <span class="member-badge {{ $m->role=="creator"?"creator-badge":"member-badge-plain" }}">{{ ucfirst($m->role) }}</span>
+        </div>
+        @endforeach
+      </div>
+    </div>
+    @if($myGroup->created_by==$student->id && $pendingRequests->count()>0)
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:600;color:#5a7a9a;text-transform:uppercase;margin-bottom:8px">Join Requests ({{ $pendingRequests->count() }})</div>
+      @foreach($pendingRequests as $req)
+      <div class="request-row">
+        <div class="member-avatar">{{ strtoupper(substr($req->user->name,0,1)) }}</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">{{ $req->user->name }}</div></div>
+        <form method="POST" class="direct-form" action="/student/group/request/{{ $req->id }}" style="display:inline">@csrf<input type="hidden" name="action" value="accept"><button type="submit" class="btn-success-sm">Accept</button></form>
+        <form method="POST" class="direct-form" action="/student/group/request/{{ $req->id }}" style="display:inline;margin-left:6px">@csrf<input type="hidden" name="action" value="reject"><button type="submit" class="btn-reject-sm">Reject</button></form>
+      </div>
+      @endforeach
+    </div>
+    @endif
+    @if($myGroup->status=="open" && $myGroup->created_by==$student->id && $myGroup->members->count()>=2)
+    <form method="POST" class="ajax-form" action="/student/group/lock/{{ $myGroup->id }}" style="margin-bottom:10px">@csrf<button type="submit" class="btn-primary">Lock Group</button></form>
+    @endif
+
+    @if(in_array($myGroup->status, ['locked','proposal_submitted','supervisor_assigned']))
+      @if($myGroup->proposal)
+      <div style="margin-top:10px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;color:#5a7a9a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Proposal</div>
+        <div style="background:#f4f8fd;border-radius:10px;padding:16px;border:1px solid #e8f0f9">
+          <div style="font-size:14px;font-weight:700;color:#0C447C;margin-bottom:6px">{{ $myGroup->proposal->title }}</div>
+          <div style="font-size:13px;color:#4a6a8a;line-height:1.5">{{ $myGroup->proposal->description }}</div>
+          @if($myGroup->proposal->technology_stack)
+          <div style="font-size:12px;color:#8096b0;margin-top:6px">Tech Stack: {{ $myGroup->proposal->technology_stack }}</div>
+          @endif
+          @if($myGroup->proposal->file_path)
+          <div style="margin-top:8px"><a href="/student/proposal/document/{{ $myGroup->proposal->id }}" style="font-size:12px;color:#0C447C;font-weight:600;text-decoration:underline">📎 Download Proposal Document</a></div>
+          @endif
+          <div style="margin-top:8px;font-size:12px">
+            Status:
+            @if($myGroup->proposal->status=='pending')<span style="color:#92400e;font-weight:600">Pending Review</span>
+            @elseif($myGroup->proposal->status=='approved')<span style="color:#166534;font-weight:600">Approved ✓</span>
+            @else<span style="color:#b91c1c;font-weight:600">Rejected</span>@endif
+          </div>
+          @if($myGroup->proposal->focal_remarks)
+          <div style="font-size:12px;color:#5a7a9a;margin-top:4px">Remarks: {{ $myGroup->proposal->focal_remarks }}</div>
+          @endif
+        </div>
+      </div>
+      @elseif($myGroup->created_by==$student->id)
+      <div style="margin-top:10px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;color:#5a7a9a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Submit Proposal</div>
+        <form method="POST" class="ajax-form" action="/student/group/proposal" enctype="multipart/form-data">
+          @csrf
+          <div style="margin-bottom:12px">
+            <label style="font-size:12px;font-weight:700;color:#0C447C;text-transform:uppercase;display:block;margin-bottom:6px">Title</label>
+            <input type="text" name="title" placeholder="Enter proposal title..." required style="width:100%;padding:10px 14px;border:1.5px solid #e8f0f9;border-radius:8px;font-size:14px;color:#1e3a5f;outline:none">
+          </div>
+          <div style="margin-bottom:12px">
+            <label style="font-size:12px;font-weight:700;color:#0C447C;text-transform:uppercase;display:block;margin-bottom:6px">Description</label>
+            <textarea name="description" placeholder="Describe your project..." required rows="4" style="width:100%;padding:10px 14px;border:1.5px solid #e8f0f9;border-radius:8px;font-size:14px;color:#1e3a5f;outline:none;font-family:inherit;resize:vertical"></textarea>
+          </div>
+          <div style="margin-bottom:14px">
+            <label style="font-size:12px;font-weight:700;color:#0C447C;text-transform:uppercase;display:block;margin-bottom:6px">Technology Stack (Optional)</label>
+            <input type="text" name="technology_stack" placeholder="e.g. Laravel, React, MySQL" style="width:100%;padding:10px 14px;border:1.5px solid #e8f0f9;border-radius:8px;font-size:14px;color:#1e3a5f;outline:none">
+          </div>
+          <div style="margin-bottom:14px">
+            <label style="font-size:12px;font-weight:700;color:#0C447C;text-transform:uppercase;display:block;margin-bottom:6px">Proposal Document (Optional)</label>
+            <input type="file" name="document" accept=".pdf,.doc,.docx" style="width:100%;padding:8px 12px;border:1.5px solid #e8f0f9;border-radius:8px;font-size:13px;color:#1e3a5f;outline:none;background:#f7fafd">
+          </div>
+          <button type="submit" class="btn-primary">Submit Proposal</button>
+        </form>
+      </div>
+      @else
+      <div style="margin-top:10px;margin-bottom:14px;font-size:13px;color:#8096b0">Waiting for group creator to submit the proposal.</div>
+      @endif
+    @endif
+    @if($myGroup->status=="open" && $myGroup->created_by==$student->id)
+    <form method="POST" class="direct-form" action="/student/group/delete/{{ $myGroup->id }}" onsubmit="return confirm('Delete group?')">@csrf<button type="submit" style="background:#dc2626;color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px">Delete Group</button></form>
+    @endif
+    @if($myGroup->status=="open" && $myGroup->created_by!=$student->id)
+    <form method="POST" class="direct-form" action="/student/group/leave/{{ $myGroup->id }}" onsubmit="return confirm('Leave group?')">@csrf<button type="submit" style="background:#dc2626;color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px">Leave Group</button></form>
+    @endif
+  </div></div>
+  @else
+  <div class="section-card"><div class="card-body">
+    <h3>Start or Join a Group</h3>
+    <p style="font-size:13px;color:#5a7a9a;margin-bottom:16px">You are not in any group yet.</p>
+    <form method="POST" class="ajax-form" action="/student/group/create">@csrf
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:#0C447C;text-transform:uppercase;display:block;margin-bottom:6px">Project Title</label>
+        <input type="text" name="project_title" placeholder="Enter project title..." required style="width:100%;padding:10px 14px;border:1.5px solid #e8f0f9;border-radius:8px;font-size:14px;color:#1e3a5f;outline:none">
+      </div>
+      <button type="submit" class="btn-primary">Create Group</button>
+    </form>
+    @if(isset($openGroups) && $openGroups->count()>0)
+    <div style="margin-top:20px">
+      <div style="font-size:13px;font-weight:700;color:#0C447C;margin-bottom:12px">Open Groups in Your Class</div>
+      <div class="open-groups-grid">
+        @foreach($openGroups as $g)
+        <div class="group-card-wrap"><div class="group-card">
+          <div class="group-card-info"><div class="code">{{ $g->group_code }}</div><div class="creator">By {{ $g->creator->name ?? "-" }}</div><div class="slots">{{ $g->members->count() }}/{{ $g->max_members }} members</div></div>
+          @if(!in_array($g->id, $myJoinRequests??[]))
+          <form method="POST" class="ajax-form" action="/student/group/join/{{ $g->id }}">@csrf<button type="submit" class="btn-primary" style="width:auto;padding:8px 18px">Request to Join</button></form>
+          @else
+          <form method="POST" class="direct-form" action="/student/group/request/cancel/{{ ($myPendingRequests->where('fyp_group_id',$g->id)->first())->id ?? 0 }}">@csrf<button type="submit" style="background:#fee2e2;color:#b91c1c;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Cancel Request</button></form>
+          @endif
+        </div></div>
+        @endforeach
+      </div>
+    </div>
+    @endif
+  </div></div>
+  @endif
+</div>
+<script src="/js/ajax.js"></script>
+<script>
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    sidebar.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('active');
+}
+</script>
+<script>
+if (typeof apiLogout === "undefined") {
+    function apiLogout() {
+        localStorage.removeItem("api_token");
+        window.location.href = "/login";
+    }
+}
+</script>
+</body></html>

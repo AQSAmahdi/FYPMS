@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" style="background:linear-gradient(90deg,#0C447C 260px,#f0f4f8 260px)">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Progress - FYPMS</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;min-height:100vh}
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:1100;background:#0C447C;border:none;border-radius:8px;padding:9px 10px;cursor:pointer;flex-direction:column;gap:5px}
+.hamburger span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998}
+.overlay.show{display:block}
+@keyframes logoFlip{0%{transform:rotateY(0deg)}100%{transform:rotateY(360deg)}}
+div.sidebar{width:260px;background:#0C447C;min-height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:999;transition:transform .3s ease}
+.sidebar-logo{padding:28px 20px 22px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;perspective:400px}
+@keyframes logoGentleSpin{0%{transform:rotateY(0deg)}100%{transform:rotateY(360deg)}}
+.sidebar-logo img{width:80px;height:80px;border-radius:50%;border:2.5px solid rgba(255,255,255,.3);object-fit:cover;animation:logoGentleSpin 10s linear infinite}
+.sidebar-logo p{color:#fff;font-size:14px;font-weight:700;margin-top:10px}
+.sidebar-logo span{color:rgba(255,255,255,.5);font-size:11px}
+.sidebar-menu{padding:18px 0;flex:1;overflow-y:auto}
+.menu-item{display:flex;align-items:center;gap:11px;padding:12px 22px;color:rgba(255,255,255,.75);text-decoration:none;font-size:13.5px;transition:all .25s;border-left:3px solid transparent}
+.menu-item svg{width:16px;height:16px;flex-shrink:0;stroke:rgba(255,255,255,.7);fill:none}
+.menu-item:hover{background:rgba(255,255,255,.09);color:#fff;border-left-color:rgba(255,255,255,.5)}
+.menu-item:hover svg{stroke:#fff}
+.menu-item.active{background:rgba(255,255,255,.15);color:#fff;border-left-color:#fff;font-weight:600}
+.menu-item.active svg{stroke:#fff}
+.sidebar-footer{padding:16px 22px;border-top:1px solid rgba(255,255,255,.1)}
+.logout-btn{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;background:none;border:none;width:100%;padding:8px 0;transition:color .2s;font-family:'Segoe UI',sans-serif;text-decoration:none}
+.logout-btn svg{width:16px;height:16px;stroke:rgba(255,255,255,.6);fill:none}
+.logout-btn:hover{color:#fff}
+.notif-bar{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.1);display:block;width:100%}
+.notif-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:none;border-radius:8px;padding:8px 12px;color:rgba(255,255,255,.8);font-size:12px;cursor:pointer;width:100%;font-family:'Segoe UI',sans-serif;transition:background .2s}
+.notif-btn svg{width:16px;height:16px;stroke:rgba(255,255,255,.8);fill:none}
+.notif-label{flex:1;text-align:left}
+.notif-badge{background:#ef4444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700}
+.logout-btn:hover svg{stroke:#fff}
+.menu-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;padding:14px 22px 6px}
+.main{margin-left:260px;padding:28px 32px;min-height:100vh}
+.topbar{background:#fff;border-radius:12px;padding:16px 22px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 12px rgba(12,68,124,.07);border:1px solid #e8f0f9}
+.topbar h2{color:#0C447C;font-size:18px;font-weight:700}
+.topbar p{color:#8096b0;font-size:12px;margin-top:2px}
+.badge-role{background:#e8f0f9;color:#0C447C;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600}
+.phase-block{background:#fff;border-radius:12px;padding:22px;box-shadow:0 1px 12px rgba(12,68,124,.07);border:1px solid #e8f0f9;margin-bottom:20px}
+.phase-title{font-size:15px;font-weight:700;color:#0C447C;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #e8f0f9;display:flex;align-items:center;gap:10px}
+.attempt-row{display:flex;justify-content:space-between;align-items:center;border:1.5px solid #e8f0f9;border-radius:10px;padding:14px 18px;margin-bottom:10px}
+.attempt-row:last-child{margin-bottom:0}
+.attempt-left{}
+.attempt-num{font-size:13px;font-weight:700;color:#1e3a5f;margin-bottom:4px}
+.attempt-date{font-size:12px;color:#8096b0}
+.attempt-right{display:flex;align-items:center;gap:12px}
+.badge-pass{background:#dcfce7;color:#166534;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700}
+.badge-fail{background:#fce4e4;color:#c62828;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700}
+.badge-pending{background:#f4f8fd;color:#8096b0;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-latest{background:#e0e7ff;color:#3730a3;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.avg-box{text-align:right}
+.avg-val{font-size:18px;font-weight:700;color:#0C447C}
+.avg-lbl{font-size:10px;color:#8096b0;text-transform:uppercase;letter-spacing:.5px}
+.empty{text-align:center;padding:60px;color:#8096b0;font-size:14px;background:#fff;border-radius:12px;border:1px solid #e8f0f9}
+.no-group{background:#fff3cd;color:#856404;padding:16px 20px;border-radius:10px;border:1px solid #fde68a;font-size:14px;margin-bottom:20px}
+@media(max-width:768px){
+    div.sidebar{transform:translateX(-260px)}
+    div.sidebar.open{transform:translateX(0)}
+    .main{margin-left:0;padding:16px}
+}
+</style>
+<link rel="stylesheet" href="/css/transitions.css">
+<meta name="view-transition" content="same-origin">
+</head>
+<body>
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+  <span></span><span></span><span></span>
+</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+@include('student.partials.sidebar')
+<div class="main">
+  <div class="topbar">
+    <div>
+      <h2>My Progress</h2>
+      <p>Track your FYP phase attempts and results</p>
+    </div>
+    <span class="badge-role">Student</span>
+  </div>
+
+  {{-- PROGRESS TIMELINE --}}
+  @if($myGroup)
+  <div style="background:#fff;border-radius:12px;padding:22px 28px;box-shadow:0 1px 12px rgba(12,68,124,.07);border:1px solid #e8f0f9;margin-bottom:20px">
+    <div style="font-size:13px;font-weight:700;color:#0C447C;margin-bottom:20px;letter-spacing:.5px;text-transform:uppercase">FYP Journey</div>
+    <div style="display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:8px">
+
+      {{-- Step 1: Group Formed --}}
+      @php $groupOk = true; @endphp
+      <div style="display:flex;flex-direction:column;align-items:center;min-width:90px">
+        <div style="width:38px;height:38px;border-radius:50%;background:{{ $groupOk ? '#0C447C' : '#e8f0f9' }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;border:3px solid {{ $groupOk ? '#0C447C' : '#c0cfe0' }}">✓</div>
+        <div style="font-size:11px;font-weight:600;color:{{ $groupOk ? '#0C447C' : '#8096b0' }};margin-top:8px;text-align:center">Group<br>Formed</div>
+      </div>
+
+      {{-- Connector --}}
+      <div style="flex:1;height:3px;background:{{ isset($proposal) ? '#0C447C' : '#e8f0f9' }};min-width:30px;margin-bottom:18px"></div>
+
+      {{-- Step 2: Proposal --}}
+      @php
+        $propStatus = $proposal->status ?? null;
+        $propDone = $propStatus === 'approved';
+        $propPending = $propStatus === 'pending';
+        $propColor = $propDone ? '#0C447C' : ($propPending ? '#92400e' : '#e8f0f9');
+        $propBg = $propDone ? '#0C447C' : ($propPending ? '#fef9c3' : '#e8f0f9');
+        $propIcon = $propDone ? '✓' : ($propPending ? '⏳' : '○');
+        $propTextColor = $propDone ? '#0C447C' : ($propPending ? '#92400e' : '#8096b0');
+      @endphp
+      <div style="display:flex;flex-direction:column;align-items:center;min-width:90px">
+        <div style="width:38px;height:38px;border-radius:50%;background:{{ $propBg }};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;border:3px solid {{ $propColor }}">{{ $propIcon }}</div>
+        <div style="font-size:11px;font-weight:600;color:{{ $propTextColor }};margin-top:8px;text-align:center">Proposal<br>{{ $propDone ? 'Approved' : ($propPending ? 'Pending' : 'Not Submitted') }}</div>
+      </div>
+
+      {{-- Phase steps --}}
+      @foreach($schedules as $phaseId => $attempts)
+      @php
+        $phase = $attempts->first()->phase;
+        $lastAttempt = $attempts->last();
+        $phaseDone = $lastAttempt->result === 'pass';
+        $phaseFail = $lastAttempt->result === 'fail';
+        $phaseColor = $phaseDone ? '#166534' : ($phaseFail ? '#c62828' : '#0C447C');
+        $phaseBg = $phaseDone ? '#dcfce7' : ($phaseFail ? '#fce4e4' : '#e8f0f9');
+        $phaseIcon = $phaseDone ? '✓' : ($phaseFail ? '✗' : '…');
+        $phaseTextColor = $phaseDone ? '#166534' : ($phaseFail ? '#c62828' : '#8096b0');
+        $connectorColor = $phaseDone ? '#166534' : '#e8f0f9';
+      @endphp
+      <div style="flex:1;height:3px;background:{{ $connectorColor }};min-width:30px;margin-bottom:18px"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;min-width:90px">
+        <div style="width:38px;height:38px;border-radius:50%;background:{{ $phaseBg }};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;border:3px solid {{ $phaseColor }};color:{{ $phaseColor }}">{{ $phaseIcon }}</div>
+        <div style="font-size:11px;font-weight:600;color:{{ $phaseTextColor }};margin-top:8px;text-align:center">{{ $phase->name ?? 'Phase' }}<br>{{ $phaseDone ? 'Passed' : ($phaseFail ? 'Failed' : 'Scheduled') }}</div>
+      </div>
+      @endforeach
+
+    </div>
+  </div>
+  @endif
+  {{-- END TIMELINE --}}
+
+  @if($proposal)
+  <div style="background:#fff;border-radius:12px;padding:20px 22px;box-shadow:0 1px 12px rgba(12,68,124,.07);border:1px solid #e8f0f9;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#8096b0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">My Proposal</div>
+      <div style="font-size:16px;font-weight:700;color:#1e3a5f">{{ $proposal->title }}</div>
+      @if($proposal->description)
+      <div style="font-size:12px;color:#8096b0;margin-top:3px">{{ $proposal->description }}</div>
+      @endif
+    </div>
+    <div style="text-align:right">
+      @if($proposal->status=='approved')
+        <span style="background:#dcfce7;color:#166534;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700">✓ Approved</span>
+      @elseif($proposal->status=='rejected')
+        <span style="background:#fce4e4;color:#c62828;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700">✗ Rejected</span>
+      @else
+        <span style="background:#fef9c3;color:#92400e;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700">⏳ Pending Review</span>
+      @endif
+      @if($proposal->file_path)
+      <div style="margin-top:8px"><a href="/student/proposal/document/{{ $proposal->id }}" style="font-size:12px;color:#0C447C;font-weight:600;text-decoration:underline">📎 Download</a></div>
+      @endif
+    </div>
+  </div>
+  @endif
+
+  @if(!$myGroup)
+    <div class="no-group">⚠ You are not part of any FYP group yet. Join or create a group to track your progress.</div>
+  @elseif($schedules->isEmpty())
+    <div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#c0cfe0" stroke-width="1.5" width="48" height="48" style="margin-bottom:12px"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <p style="font-weight:600;margin-bottom:6px">No phase evaluations yet</p>
+      <p style="font-size:13px">Your phase attempt history will appear here once evaluations are scheduled.</p>
+    </div>
+  @else
+    @foreach($schedules as $phaseId => $attempts)
+    @php $phase = $attempts->first()->phase; @endphp
+    <div class="phase-block">
+      <div class="phase-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0C447C" stroke-width="2" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        {{ $phase->name ?? 'Phase' }}
+        <span style="font-size:12px;color:#8096b0;font-weight:400">({{ $attempts->count() }} attempt{{ $attempts->count() > 1 ? 's' : '' }})</span>
+      </div>
+
+      @foreach($attempts as $attempt)
+      <div class="attempt-row" style="{{ $loop->last && $attempts->count() > 1 ? 'border-color:#0C447C' : '' }}">
+        <div class="attempt-left">
+          <div class="attempt-num">
+            Attempt #{{ $attempt->attempt_number }}
+            @if($loop->last && $attempts->count() > 1)
+              <span class="badge-latest">Latest</span>
+            @endif
+          </div>
+          <div class="attempt-date">
+            {{ \Carbon\Carbon::parse($attempt->schedule_date)->format('d M Y') }}
+            @if($attempt->room)
+              &bull; Room: {{ $attempt->room }}
+            @endif
+          </div>
+          @if($attempt->result_remarks && $attempt->result !== 'pending')
+          <div style="font-size:12px;color:#5a7a9a;margin-top:4px">{{ $attempt->result_remarks }}</div>
+          @endif
+        </div>
+        <div class="attempt-right">
+          @if($attempt->average_marks !== null)
+          <div class="avg-box">
+            <div class="avg-val">{{ number_format($attempt->average_marks, 1) }}%</div>
+            <div class="avg-lbl">Average</div>
+          </div>
+          @endif
+          @if($attempt->result === 'pass')
+            <span class="badge-pass">✓ Pass</span>
+          @elseif($attempt->result === 'fail')
+            <span class="badge-fail">✗ Fail</span>
+          @else
+            <span class="badge-pending">Pending</span>
+          @endif
+        </div>
+      </div>
+      @endforeach
+    </div>
+    @endforeach
+  @endif
+</div>
+
+<script>
+function toggleSidebar(){
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('hamburger').classList.toggle('open');
+    const overlay = document.getElementById('overlay');
+    if (overlay) overlay.classList.toggle('show');
+}
+</script>
+</body>
+</html>
